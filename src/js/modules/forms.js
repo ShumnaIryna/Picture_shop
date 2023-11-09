@@ -1,8 +1,9 @@
-//import checkNumInputs from "./checkNumInputs";
+import { postData } from "../services/reguests";
 
 const forms = () => {
   const form = document.querySelectorAll("form"),
-    inputs = document.querySelectorAll("input");
+    inputs = document.querySelectorAll("input"),
+    upload = document.querySelectorAll("[name='upload']");
 
   //checkNumInputs('input[name="user_phone"]');
   //to enter only numbers
@@ -21,20 +22,30 @@ const forms = () => {
     question: "assets/question.php",
   };
 
-  const postData = async (url, data) => {
-    let res = await fetch(url, {
-      method: "POST",
-      body: data,
-    });
-
-    return await res.text();
-  };
-
   const clearInputs = () => {
     inputs.forEach((item) => {
       item.value = "";
     });
+
+    //cleaning the inscription after sending the form with the photo
+    upload.forEach((item) => {
+      item.previousElementSibling.textContent = "Файл не вибрано";
+    });
   };
+
+  upload.forEach((item) => {
+    item.addEventListener("input", () => {
+      console.log(item.files[0]);
+
+      //the text changes when a photo is selected
+      //if the name of the photo is long, then put dots
+      let dots;
+      const arr = item.files[0].name.split(".");
+      arr[0].lenght > 6 ? (dots = "...") : (dots = ".");
+      const name = arr[0].substring(0, 6) + dots + arr[1];
+      item.previousElementSibling.textContent = name;
+    });
+  });
 
   form.forEach((item) => {
     item.addEventListener("submit", (e) => {
@@ -61,7 +72,7 @@ const forms = () => {
 
       const formData = new FormData(item);
       let api;
-      item.closest("popup-design")
+      item.closest(".popup-design") || item.classList.contains("calc_form")
         ? (api = path.designer)
         : (api = path.question);
 
@@ -79,6 +90,10 @@ const forms = () => {
           clearInputs();
           setTimeout(() => {
             statusMessage.remove();
+
+            item.style.display = "block";
+            item.classList.remove("fadeOutUp");
+            item.classList.add("fadeInUp");
           }, 5000);
         });
     });
@@ -86,3 +101,7 @@ const forms = () => {
 };
 
 export default forms;
+
+//----when testing form
+//submission: start MAMR => Start => Open WebStart Page.
+// http://localhost:7888/
